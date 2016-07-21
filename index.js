@@ -21,7 +21,7 @@ var respond = function (static_url, callback) {
         var i = 0;
         var list = [];
         fs.readdir(static_url + list_dir, function (err, files) {
-          if (err) throw err;
+          if (err) {console.log('upload image err:',err);return;};
 
           var total = files.length;
           files.forEach(function (file) {
@@ -58,8 +58,10 @@ var respond = function (static_url, callback) {
       var busboy = new Busboy({
         headers: req.headers
       });
-
       busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
+        if (!filename) {
+          return;
+        }
         req.ueditor = {};
         req.ueditor.fieldname = fieldname;
         req.ueditor.file = file;
@@ -74,7 +76,7 @@ var respond = function (static_url, callback) {
           file.pipe(writeStream);
           writeStream.on("close", function () {
             fse.move(tmpdir, dest, function (err) {
-              if (err) throw err;
+              if (err) {console.log('upload image err:',err);return;};
               res.json({
                 'url': path.join(img_url, name).replace(/\\/g,'/'),
                 'title': req.body.pictitle,
